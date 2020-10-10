@@ -535,9 +535,9 @@ if cmd==3:
 memcpy(&note[index], &note[offset], copy_size);
 index += copy_size;
 
-####------------------------------------------------------------------------------------
-####****************************************************
-####-----------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+****************************************************
+-----------------------------------------------------------------------------------
         ^          ^
       Offset      Index
 ```
@@ -563,7 +563,7 @@ This took a long time of playing around, debugging, setting break points, examin
 Even if we can perform a bof , the canary protection will  throw a "stack smashing detected".
 The canary is a random 8bytes selected each time the bianry start. in our case the program use fork() to handle a new client connection. This doesn't change when a new process is forked to handle my request.
 
-###### Nota: 
+###### Nota: 
 
 **To prevent from the canary reuse with fork(). Use execve() after the fork(), sections "text" "data" and "bss" will change the memory and use a new random canary value.**
 
