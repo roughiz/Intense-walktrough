@@ -1,5 +1,4 @@
 # Intense-walktrough
-Writeup of the HACKTHEBOX Intense machine
 
 Intense was a very long road to user, and all about binary for the root. I'll use a sqlite injection to have the admin password hash, then use the Hash Length Extension attack to put our hash into the cookie without knowing the random generated key. and finally have access to the admin panel where i perform a directory traversal through a none sanitazed logfile input. But to have a user shell we have to read the snmpd config file and use a secret community with "wr" right and abuse it to for RCE.
 Finally for root, I'll use a locally running server, require read the canary ebp and return address to allow for an overflow and defeat PIE, and then doing a ROP to libc leak to get past ASLR, all to send an other ROP which provide a shell as root.
@@ -101,13 +100,13 @@ With this structure i can bruteforce password using "substr()" function, if i ha
 
 ![sqli](https://github.com/roughiz/Intense-walktrough/blob/main/images/sqli.png)
 
-####### Reference - Sqlite Sqli 
+##### Reference - Sqlite Sqli 
 
 [sqlite sqli cheat sheet](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/SQL%20Injection/SQLite%20Injection.md)
 
 We can also use many other functions, the goal is to return an error or a return message to know if the condition was true or false.
 
-We have all slqite functions from [here](https://sqlite.org/lang_corefunc.html)
+We have all sqlite functions from [here](https://sqlite.org/lang_corefunc.html)
 
 #### Exploit [scirpt](https://github.com/roughiz/Intense-walktrough/blob/main/code/blind_sqlitei_brutfpass.py)
 
@@ -504,7 +503,9 @@ newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 In the "handle_client(int sock)" the server wait for a command, the command is set as a 1 byte and there are 3 commands :
 
 **Command 1 : read from client buffer and put into the note array**
+
 **Command 2: copy data from an offset of the note array to an other offset "index" in the same array.**
+
 **Command 3: write the content of the note array.**
 
 ```

@@ -3,7 +3,6 @@ import argparse
 import pyfiglet
 import sys, os
 from termcolor import colored
-url= 'http://34.74.105.127/b7ed9a6d50/login'
 
 chars= string.printable
 arg_parser = argparse.ArgumentParser(description='SQLITE injnection, bruteforce password or enum users, exploiting an insert into ')
