@@ -690,7 +690,7 @@ def read_canary_ebp_rsp():
     return (canary,RBP,RIP)
 ```
 
-### Leak libc 
+###  Leak libc 
 
 Now I know the memory space of the main program, but not the libc. I also know the canary and can overwrite the return address. I'll use a rop chain to leak a libc address, and then can calculate the addresses of any functions or strings in libc I want. In the program, it uses "write" to send data to the socket. I'll use a write call to send the GOT table address for the write function.
 
@@ -770,7 +770,7 @@ def read_write_libc_fct_address(binary,canary,rbp,base_address):
 
 The GOT address will hold the address of "write" in libc as it's loaded. That's what I want to leak. The PLT is the table of code that contains the stubs to call the dynamic linker. So the first time a function is called, the GOT jump right back to the PLT which calls the linker. The linker updates the GOT so the next time it's called, it goes right to the function in libc. The PLT address will be constant relative to the program base. I finally have to find the offset of functions and gadgets etc.. and calculate the libc base address.
 
-#### Code 
+#### Code 
 
 ```
 	     **# readelf -s remote_libc.so | grep -e " dup2@@GLIBC" -e " execve@@GLIBC" -e " write@@GLIBC"**
