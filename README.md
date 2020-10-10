@@ -587,7 +587,7 @@ The code :
 Binary compare the canary block from var_8h which "rbp-0x8" with the constant value of canary "fs:[0x28]"
 After the xor of the two QWORDS "rax" and "fs:[0x28]" it will jmp to the end of function to leave, or call the function "imp.__stack_chk_fail"
 
-#### Find the offset where the canary begin:
+#### Find the offset where the canary begin: 
 
 We can't directly write over the buffer, but we have to put the data into the note array. First through the command 1 and use the command 2 to define the offset from where we will write over the buffer.
 I create a "pattern_offset" with gdb, and put it in the notes[512] offset= 512, and put a breakpoint and read the "rbp-0x8" to find the location of the offset before the canary QWORD.
@@ -639,7 +639,8 @@ gdb-peda$ pattern_offset 0x6e41412441414241
 
 **The canary start after 8 bytes**
 
-#### Read canary EBP and the return address
+
+#### Read canary EBP and the return address 
 
 The function used to copy a note into in other offest is "memcpy":
 
